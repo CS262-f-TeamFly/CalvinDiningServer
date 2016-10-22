@@ -7,6 +7,7 @@ app.get('/', function (req, res) {
 });
 
 function mealMenu (name, startTime, endTime, description) {
+    this.name = name;
     this.startTime = startTime;
     this.endTime = endTime;
     this.description = description;
