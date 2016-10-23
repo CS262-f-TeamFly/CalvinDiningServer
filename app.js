@@ -20,7 +20,7 @@ function mkeMmt (time) {
 var todaysMenu = [
     new mealMenu('breakfast', mkeMmt('8:30 a'), mkeMmt('10:00 a'), 'contenental breakfast\nfdadffdas\ndasfdsafadsdfsa\nsdafsdafasdfda\nasdfasdfdasfddsfaasdf\nasdfsadfsadfsadf'),
     new mealMenu('lunch', mkeMmt('11:30 a'), mkeMmt('1:30 p'), 'lunch\ndafsadfasdffsadfsadfd\nsadfdsafsadasdfdasfdasfdsafasdf\nsadfsadfasfsadasdfasdfadsfds\ndasgasdfdasasddasfdas\nasdfasdfasdfs'),
-    new mealMenu('dinner', mkeMmt('4:45 p'), mkeMmt('6:15 p'), 'dinner\nasdfsadfsdfasdfsdadsfadadf\nasdfasdfasfdsafdfdsa\nadsfasfdasddfsdafdsafdsaf\nasdfdasfsdafdsdadfsdafdadffsaddfsasdf'),
+    new mealMenu('dinner', mkeMmt('4:45 p'), mkeMmt('6:15 p'), 'dinner\nasdfsadfsdfasdfsdadsfadadf\nasdfasdfasfdsafdfdsa\nadsfasfdasddfsdafdsafdsaf\nasdfdasfsdafdsdadfsdafdadffsaddfsasdffdasdfdsfadsasdfadsfsad\ndfasdfa\nasdfads\nasdfasdfsad\nasedfsdfsd\nasdfsadfdsa\nasdfasdfdsa\nsadfasdfasddfasd\nasdfsadfdsa\nasdfsdafasdfasd\nasdfsadfasddfasd\nasdfasddfsaf\nasdfsaddfdsa\nasdfasdfsadfas\nasdfasdfasdfasdfdas\nasdfdasfdsadfsadfasdf'),
 ];
 
 // send today over
