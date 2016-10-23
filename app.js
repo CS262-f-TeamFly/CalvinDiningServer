@@ -1,10 +1,14 @@
 const express = require('express');
 const moment = require('moment-timezone');
+const cacheResponseDirective = require('express-cache-response-directive');
+
 var app = express();
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
 });
+
+app.use(cacheResponseDirective());
 
 function mealMenu (name, startTime, endTime, description) {
     this.name = name;
@@ -25,6 +29,7 @@ var todaysMenu = [
 
 // send today over
 app.get('/today', function (req, res) {
+    res.cacheControl({maxAge: "2h"});
     res.send(todaysMenu);
 });
 
