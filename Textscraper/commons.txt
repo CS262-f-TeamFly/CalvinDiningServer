@@ -1,0 +1,37 @@
+Breakfast:
+Hot Line: Oatmeal, Scrambled Eggs,Veggie-Ham Quiche, Potato Pancakes, Stuffed French Toast
+
+
+Lunch: 
+Soup: Chicken Noodle; Cream of Tomato
+
+Flip-Side:
+Express: Grilled Cheese and Fries
+Almond Chicken, Broccoli, Rice, Mosticoli,
+Sicilian Blend, Curried Vegetable Quinoa
+
+Taqueria:
+Daily Special: Grilled Cheese and Fries
+
+Piazza:
+Hawaiian, Wild Mushroom, Sausage, 5-Cheese
+Sandwich: Chicken Pesto
+
+UpperCrust: Grilled Cheese Special
+
+
+Dinner: 
+Soup: Chicken Noodle; Cream of Tomato
+
+Flip-Side:
+Express: French Dip and Fresh Chips
+Wings, Meatloaf, Green Beans, Dill Carrots, Mac&Cheese
+
+Taqueria:
+Daily Special: Chicken Fajitas and Vegetables
+
+Piazza:
+Hawaiian, Wild Mushroom, Sausage, 5-Cheese
+Sandwich: Chicken Pesto
+
+UpperCrust: Salmon Burger
