@@ -1,0 +1,64 @@
+
+Lunch:
+Soup:
+Cream of Tomato
+Chicken Noodle
+
+Grill:
+Grilled Cheese Sandwich
+Chips
+
+Homestyle:
+Country Style Pork Ribs
+Baked Beans
+
+
+Sunshine Blend Vegetables
+
+International:
+Baked Barramundi
+Rice
+Broccoli
+
+Vegetarian/Vegan:
+Thai Peanut Noodles
+
+Vegan Soup:
+
+Spiced Lentil
+
+E-Bar:
+Sizzlin' Salads
+
+Dinner:
+Soup:
+Chicken Noodle
+Cream of Tomato
+
+Grill:
+Polish Sausage w/Grilled Onions
+French Fries
+
+Homestyle:
+Southern Fried Chicken Tenders
+
+
+Mashed Sweet Potatoes
+Corn
+
+International:
+Seafood Jambalaya
+Cornbread
+
+
+Fresh Asparagus
+
+Vegetarian/Vegan:
+Curried Potato Pancakes
+
+
+Vegan Soup:
+Spiced Lentil
+
+E-Bar:
+Fried Rice Bar
