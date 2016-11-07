@@ -16,7 +16,7 @@ app.use(cacheResponseDirective());
 // send today over
 app.get('/venues', function (req, res) {
     res.cacheControl({maxAge: "2h"});
-    res.send(venues);
+    res.send(makeVenues());
 });
 
 module.exports = app;
@@ -49,7 +49,7 @@ makeVenues();
 function makeVenues () {
     let venueCommons = makeVenue("Commons Dining Hall");
     let venueCommons2 = makeVenue("Knollcrest Dining Hall");
-    
+    return [venueCommons, venueCommons2];
 }
 
 function makeVenue (venueName) {
