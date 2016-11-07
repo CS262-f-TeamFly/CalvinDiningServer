@@ -96,7 +96,7 @@ function makeVenueFromJSON (vJson, venueName) {
     for (var i = 0; i < vJson.contentlets.length; i++) {
         let vData = vJson.contentlets;
         let startTime = moment.tz(vData[i].startTime, "America/Detroit");
-        let endTime = moment.tz(vData[i].endTime, "America/Detroit").format;
+        let endTime = moment.tz(vData[i].endTime, "America/Detroit");
         let name = vData[i].mealName;
         let description = vData[i].menuContent;
         
