@@ -33,9 +33,9 @@ setInterval( runMakeVenues, 1800000);
 module.exports = app;
 
 
-function Venue (name, events) {
+function Venue (name) {
     this.name = name;
-    this.events = events = [];
+    this.events = [];
 }
 
 Venue.prototype.addEvent = function (event) {
@@ -43,7 +43,7 @@ Venue.prototype.addEvent = function (event) {
 }
 
 
-function meal (name, startTime, endTime, description) {
+function Meal (name, startTime, endTime, description) {
     this.name = name;
     this.startTime = startTime;
     this.endTime = endTime;
@@ -92,21 +92,17 @@ function makeVenue (venueName) {
 }
 
 function makeVenueFromJSON (vJson, venueName) {
-    if (vJson.contentlets.length > 0) {
-        let newVenue = new Venue(venueName, null); 
-        for (var i = 0; i < vJson.contentlets.length; i++) {
-            let vData = vJson.contentlets;
-            let startTime = vData[i].startTime;
-            let endTime = vData[i].endTime;
-            let name = vData[i].mealName;
-            let description = vData[i].menuContent;
-            newVenue.addEvent(new meal(name, startTime, endTime, description));
-        }
-        console.log("THE DATA IS:", newVenue);
-        return newVenue;
-    } else {
-        console.log("NO MENUES TODAY");
+    let newVenue = new Venue(venueName); 
+    for (var i = 0; i < vJson.contentlets.length; i++) {
+        let vData = vJson.contentlets;
+        let startTime = vData[i].startTime;
+        let endTime = vData[i].endTime;
+        let name = vData[i].mealName;
+        let description = vData[i].menuContent;
+        newVenue.addEvent(new Meal(name, startTime, endTime, description));
     }
+    console.log("THE DATA IS:", newVenue);
+    return newVenue;
 }
 
 // Copied from calvin's server
