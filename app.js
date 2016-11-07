@@ -16,8 +16,19 @@ app.use(cacheResponseDirective());
 // send today over
 app.get('/venues', function (req, res) {
     res.cacheControl({maxAge: "2h"});
-    res.send(makeVenues());
+    venues.then(venues => {
+        res.send(venues);
+    });
 });
+
+var venues;
+runMakeVenues();
+
+function runMakeVenues() {
+    venues = makeVenues();
+}
+
+setInterval( runMakeVenues, 1800000);
 
 module.exports = app;
 
@@ -32,7 +43,7 @@ Venue.prototype.addEvent = function (event) {
 }
 
 
-function mealMenu (name, startTime, endTime, description) {
+function meal (name, startTime, endTime, description) {
     this.name = name;
     this.startTime = startTime;
     this.endTime = endTime;
@@ -43,39 +54,40 @@ function mkeMmt (time) {
     return moment.tz(time, "hh:mm a", "America/Detroit");
 }
 
-// Run makeVenue to test it
-makeVenues();
-
 function makeVenues () {
-    let venueCommons = makeVenue("Commons Dining Hall");
-    let venueCommons2 = makeVenue("Knollcrest Dining Hall");
-    return [venueCommons, venueCommons2];
+    return Promise.all([
+        makeVenue("Commons Dining Hall"),
+        makeVenue("Knollcrest Dining Hall"),
+    ]);
 }
 
 function makeVenue (venueName) {
     let requestDate = getDate();
     console.log("Requesting date: " + requestDate);
     let venueJSON = "https://calvin.edu/api/content/render/false/type/json/query/+structureName:DiningMenus%20+DiningMenus.venue:" + venueName + "%20+DiningMenus.date:" + requestDate + "%20+live:true/orderby/DiningMenus.startTime%20asc";
-    https.get(venueJSON, (res) => {
-        /*
-        console.log("statusCode:", res.statusCode);
-        console.log("headers:", res.headers);*/
-        
-        // https://nodejs.org/api/http.html#http_http_get_options_callback
-        // handle getting data
-        let vJson;
-        res.setEncoding('utf8');
-        let rawData = '';
-        res.on('data', (chunk) => rawData += chunk);
-            res.on('end', () => {
-            try {
-                vJson = JSON.parse(rawData);
-                return makeVenueFromJSON(vJson, venueName);
-            } catch (e) {
-              console.log(e.message);
-            }
-        });
-        // end data handling
+    return new Promise( (resolve, reject) => {
+        https.get(venueJSON, (res) => {
+            /*
+            console.log("statusCode:", res.statusCode);
+            console.log("headers:", res.headers);*/
+
+            // https://nodejs.org/api/http.html#http_http_get_options_callback
+            // handle getting data
+            let vJson;
+            res.setEncoding('utf8');
+            let rawData = '';
+            res.on('data', (chunk) => rawData += chunk);
+                res.on('end', () => {
+                try {
+                    vJson = JSON.parse(rawData);
+                    resolve(makeVenueFromJSON(vJson, venueName));
+                } catch (e) {
+                    reject(e);
+                    console.log(e.message);
+                }
+            });
+            // end data handling
+        }).on('error', reject);
     });
 }
 
@@ -88,7 +100,7 @@ function makeVenueFromJSON (vJson, venueName) {
             let endTime = vData[i].endTime;
             let name = vData[i].mealName;
             let description = vData[i].menuContent;
-            newVenue.addEvent(new mealMenu(name, startTime, endTime, description));
+            newVenue.addEvent(new meal(name, startTime, endTime, description));
         }
         console.log("THE DATA IS:", newVenue);
         return newVenue;
