@@ -95,10 +95,11 @@ function makeVenueFromJSON (vJson, venueName) {
     let newVenue = new Venue(venueName); 
     for (var i = 0; i < vJson.contentlets.length; i++) {
         let vData = vJson.contentlets;
-        let startTime = vData[i].startTime;
-        let endTime = vData[i].endTime;
+        let startTime = moment.tz(vData[i].startTime, "America/Detroit");
+        let endTime = moment.tz(vData[i].endTime, "America/Detroit").format;
         let name = vData[i].mealName;
         let description = vData[i].menuContent;
+        
         newVenue.addEvent(new Meal(name, startTime, endTime, description));
     }
     console.log("THE DATA IS:", newVenue);
@@ -107,21 +108,8 @@ function makeVenueFromJSON (vJson, venueName) {
 
 // Copied from calvin's server
 function getDate () {
-    var m_names = new Array("", "Jan.", "Feb.", "Mar.",
-        "Apr.", "May", "June", "July", "Aug.", "Sep.",
-        "Oct.", "Nov.", "Dec.");
-
-    // TODO use moment time zone
-    var d = new Date();
-    var curr_date = d.getDate();
-    var curr_month = d.getMonth() + 1;
-    var curr_year = d.getFullYear();
-
-    /* Edit: 12/01/2015, jlaughli 
-       We need a two digit value for both date and month, 
-       otherwise the JSON request fails. */
-    var req_date = ("0" + d.getDate()).slice(-2);
-    var req_month = ("0" + (d.getMonth() + 1)).slice(-2);
-    var requestDate = curr_year + "" + req_month + "" + req_date;
-    return requestDate;
+    //TODO use tomorrow later
+    let today = moment().tz('America/Detroit');
+    let tomorrow = today.clone().add(1, 'day'); // for later
+    return today.format("YYYYMMDD");
 }
