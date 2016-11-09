@@ -62,9 +62,13 @@ function makeVenues () {
 }
 
 function makeVenue (venueName) {
-    let requestDate = getDate();
-    console.log("Requesting date: " + requestDate);
-    let venueJSON = "https://calvin.edu/api/content/render/false/type/json/query/+structureName:DiningMenus%20+DiningMenus.venue:" + venueName + "%20+DiningMenus.date:" + requestDate + "%20+live:true/orderby/DiningMenus.startTime%20asc";
+    let requestDates = getDates();
+    let newVenue = new Venue(venueName);
+    return Promise.all(requestDates.map( (date) => getData(newVenue, date))).then(() => newVenue);
+}
+
+function getData (venue, date) {
+    let venueJSON = "https://calvin.edu/api/content/render/false/type/json/query/+structureName:DiningMenus%20+DiningMenus.venue:" + venue.name + "%20+DiningMenus.date:" + date.format("YYYYMMDD") + "%20+live:true/orderby/DiningMenus.startTime%20asc";
     return new Promise( (resolve, reject) => {
         https.get(venueJSON, (res) => {
             /*
@@ -80,7 +84,7 @@ function makeVenue (venueName) {
                 res.on('end', () => {
                 try {
                     vJson = JSON.parse(rawData);
-                    resolve(makeVenueFromJSON(vJson, venueName));
+                    resolve(addEventsFromJson(venue, vJson, date));
                 } catch (e) {
                     reject(e);
                     console.log(e.message);
@@ -91,25 +95,28 @@ function makeVenue (venueName) {
     });
 }
 
-function makeVenueFromJSON (vJson, venueName) {
-    let newVenue = new Venue(venueName); 
+function addEventsFromJson (venue, vJson, date) {
     for (var i = 0; i < vJson.contentlets.length; i++) {
         let vData = vJson.contentlets;
-        let startTime = moment.tz(vData[i].startTime, "America/Detroit");
-        let endTime = moment.tz(vData[i].endTime, "America/Detroit");
+        let startTime = setToCurrentDate(vData[i].startTime, date);
+        let endTime = setToCurrentDate(vData[i].endTime, date);
         let name = vData[i].mealName;
         let description = vData[i].menuContent;
         
-        newVenue.addEvent(new Meal(name, startTime, endTime, description));
+        venue.addEvent(new Meal(name, startTime, endTime, description));
     }
-    console.log("THE DATA IS:", newVenue);
-    return newVenue;
 }
 
-// Copied from calvin's server
-function getDate () {
+function setToCurrentDate (data, date) {
+    let time = moment.tz(data, "America/Detroit");
+    time.year(date.year()).month(date.month()).date(date.day());
+    return time;
+}
+
+
+function getDates () {
     //TODO use tomorrow later
     let today = moment().tz('America/Detroit');
     let tomorrow = today.clone().add(1, 'day'); // for later
-    return today.format("YYYYMMDD");
+    return [today, tomorrow];
 }
