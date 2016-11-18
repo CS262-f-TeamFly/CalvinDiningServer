@@ -57,10 +57,10 @@ function mkeMmt (time) {
 function makeVenues () {
     return Promise.all([
         makeVenue("Commons Dining Hall"),
-        makeVenue("Knollcrest Dining Hall")/*,
+        makeVenue("Knollcrest Dining Hall"),
         makeVenue("Johnnys Cafe"),
         makeVenue("Spoelhof Cafe"),
-        makeVenue("Knight Way Cafe")*/
+        makeVenue("Knight Way Cafe")
         
     ]);
 }
