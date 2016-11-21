@@ -34,6 +34,7 @@ INSERT INTO Person VALUES (2, 'JohnDoe', '12345', 25);
 INSERT INTO Person VALUES (3, 'RaymondStantz', 'helloworld', 45);
 INSERT INTO Person VALUES (4, 'PeterVenkman', 'buster', 15);
 INSERT INTO Person VALUES (5, 'EgonSpengler', 'password', 20);
+INSERT INTO Person VALUES (6, 'BatMan', 'nanananan', 20);
 
 INSERT INTO Poll VALUES (1, 1, 'CommonsSurvey', 'multipleChoice', 'What should Commons add to the menu?', 'Lobster', TRUE, 
 'Swordfish', FALSE, 'Crab', FALSE, 'Clams', FALSE);
@@ -51,7 +52,11 @@ WHERE username LIKE 'John%';
 
 SELECT question, option1, answer1, option2, answer2
 FROM Poll
-WHERE questionType = 'trueFalse'
+WHERE questionType = 'trueFalse';
+
+SELECT username
+FROM Person
+WHERE username = 'JohnCalvin'
 
 
 
