@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS Response;
 DROP TABLE IF EXISTS Poll;
 DROP TABLE IF EXISTS Person;
 
@@ -13,17 +14,23 @@ meals integer
 CREATE TABLE Poll
 (
 pollID int NOT NULL PRIMARY KEY,
-personID int REFERENCES Person(ID),
-title varchar(50),
+diningHall varchar(50),
 questionType varchar(50),
 question varchar(100),
 option1 varchar(50),
-answer1 boolean,
 option2 varchar(50),
-answer2 boolean,
 option3 varchar(50),
+option4 varchar(50)
+    
+);
+
+CREATE TABLE Response
+(
+pollID int REFERENCES Poll(pollID),
+personID int REFERENCES Person(ID),
+answer1 boolean,
+answer2 boolean,
 answer3 boolean,
-option4 varchar(50),
 answer4 boolean
 );
 
@@ -36,27 +43,15 @@ INSERT INTO Person VALUES (4, 'PeterVenkman', 'buster', 15);
 INSERT INTO Person VALUES (5, 'EgonSpengler', 'password', 20);
 INSERT INTO Person VALUES (6, 'BatMan', 'nanananan', 20);
 
-INSERT INTO Poll VALUES (1, 1, 'CommonsSurvey', 'multipleChoice', 'What should Commons add to the menu?', 'Lobster', TRUE, 
-'Swordfish', FALSE, 'Crab', FALSE, 'Clams', FALSE);
-INSERT INTO Poll VALUES (2, 4, 'CommonsSurvey', 'trueFalse', 'Did you enjoy you meal today?', 'Yes', FALSE, 'No', TRUE);
+INSERT INTO Poll VALUES (1,'Commons', 'multipleChoice', 'What should Commons add to the menu?', 'Lobster', 
+'Swordfish', 'Crab', 'Clams');
+INSERT INTO Poll VALUES (2,'Commons', 'multipleChoice', 'What should Commons never serve again?', 'Lobster', 
+'Swordfish', 'Crab', 'Clams');
+INSERT INTO Poll VALUES (3, 'Knollcrest', 'trueFalse', 'Did you enjoy you meal today?', 'Yes', 'No');
+INSERT INTO Poll VALUES (4, 'Knollcrest', 'trueFalse', 'Did you not enjoy you meal today?', 'Yes', 'No');
 
+INSERT INTO Response VALUES (1, 1, TRUE, FALSE, FALSE, FALSE);
+INSERT INTO Response VALUES (1, 2, FALSE, TRUE, FALSE, FALSE);
 
-
-SELECT *
-FROM Person
-WHERE meals > 30;
-
-SELECT *
-FROM Person
-WHERE username LIKE 'John%';
-
-SELECT question, option1, answer1, option2, answer2
-FROM Poll
-WHERE questionType = 'trueFalse';
-
-SELECT username
-FROM Person
-WHERE username = 'JohnCalvin'
-
-
-
+INSERT INTO Response VALUES (2, 1, TRUE, FALSE, NULL, NULL);
+INSERT INTO Response VALUES (2, 2, FALSE, TRUE, NULL, NULL);
