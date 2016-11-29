@@ -11,32 +11,14 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * This module implements a RESTful service for the player table of the monopoly database.
- * Only the player relation is supported, not the game or playergame objects.
- * The server requires Java 1.7 (not 1.8).
- * <p>
- * I tested these services using IDEA's REST Client test tool. Run the server and open
- * Tools-TestRESTService and set the appropriate HTTP method, host/port, path and request body and then press
- * the green arrow (submit request).
- *
- * @author kvlinden
- * @version summer, 2016 - upgraded to JSON; added User POJO; removed unneeded libraries
- */
+ Server created By Kyle Harkema 
+ For TeamFly Dining hall project for cs262 at Calvin College
+ Used to get access and modify data in dining hall database
+ Contains records for users, polls, and poll responses
+ Last Updated 11-28-16
+ **/
 @Path("/dining")
 public class DiningResource {
-
-    /**
-     * a hello-world resource
-     *
-     * @return a simple string value
-     */
-    @SuppressWarnings("SameReturnValue")
-    @GET
-    @Path("/hello")
-    @Produces("text/plain")
-    public String getClichedMessage() {
-        return "Hello, Jersey!";
-    }
 
     /**
      * GET method that returns a list of all users
@@ -48,7 +30,6 @@ public class DiningResource {
     @Produces("application/json")
     public String getUsers() {
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveUsers());
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,6 +37,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * POST method that creates a new user
+     *
+     * @return a JSON of the added user
+     */
     @POST
     @Path("/users")
     @Consumes("application/json")
@@ -70,6 +56,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns user with given ID
+     *
+     * @return a JSON of the user
+     */
     @GET
     @Path("/users/{id}")
     @Produces("application/json")
@@ -82,6 +73,12 @@ public class DiningResource {
         return null;
     }
 
+
+    /**
+     * DELETE method that deletes the user with the given ID
+     *
+     * @return a JSON of the deleted user
+     */
     @DELETE
     @Path("/users/{id}")
     @Produces("application/json")
@@ -96,6 +93,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a given users meals
+     *
+     * @returns an integer value of the meal
+     */
     @GET
     @Path("/users/{id}/meals")
     @Produces("application/json")
@@ -108,6 +110,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * PUT method that modifys the users number of meals
+     *
+     * @returns the changed integer
+     */
     @PUT
     @Path("/users/{id}/meals")
     @Produces("application/json")
@@ -121,12 +128,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a list of all polls
+     *
+     * @return a JSON list representation of the polls
+     */
     @GET
     @Path("/polls")
     @Produces("application/json")
     public String getPolls(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrievePolls());
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +145,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * POST method that adds a new poll
+     *
+     * @return a JSON oof the added poll
+     */
     @POST
     @Path("/polls")
     @Consumes("application/json")
@@ -148,6 +164,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * DELETE method that delets the poll with the given id
+     *
+     * @return a JSON of the deleted poll
+     */
     @DELETE
     @Path("/polls/{id}")
     @Produces("application/json")
@@ -162,12 +183,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a list of all commons polls
+     *
+     * @return a JSON list representation of the commons polls
+     */
     @GET
     @Path("/polls/commons")
     @Produces("application/json")
     public String getCommonsPolls(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveCommonsPolls());
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,12 +200,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a list of the newest poll from commons
+     *
+     * @return a JSON of the newest commons poll
+     */
     @GET
     @Path("/polls/commons/new")
     @Produces("application/json")
     public String getNewCommonsPolls(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveNewCommonsPolls());
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,12 +217,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a list of all knollcrest polls
+     *
+     * @return a JSON list representation of the knollcrest polls
+     */
     @GET
     @Path("/polls/knollcrest")
     @Produces("application/json")
     public String getKnollcrestPolls(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveKnollcrestPolls());
         } catch (Exception e) {
             e.printStackTrace();
@@ -201,12 +234,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a list of the newest poll from knollcrest
+     *
+     * @return a JSON of the newest knollcrest poll
+     */
     @GET
     @Path("/polls/knollcrest/new")
     @Produces("application/json")
     public String getNewKnollcrestPolls(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveNewKnollcrestPolls());
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,12 +251,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a JSON list of responses
+     *
+     * @return a JSON list of responses
+     */
     @GET
     @Path("/responses")
     @Produces("application/json")
     public String getResponses(){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrieveResponses());
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,6 +268,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * POST method that adds a new response
+     *
+     * @return a JSON of new response
+     */
     @POST
     @Path("/responses")
     @Consumes("application/json")
@@ -241,12 +287,16 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a JSON list of responses for a given pollID
+     *
+     * @return a JSON list of responses
+     */
     @GET
     @Path("/responses/{id}")
     @Produces("application/json")
     public String getPollResponses(@PathParam("id") int id){
         try {
-            // As an example of GSON, we'll hard-code a couple players and return their JSON representation.
             return new Gson().toJson(retrievePollResponses(id));
         } catch (Exception e) {
             e.printStackTrace();
