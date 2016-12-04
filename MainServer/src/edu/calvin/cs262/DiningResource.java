@@ -3,9 +3,16 @@ package edu.calvin.cs262;
 import com.google.gson.Gson;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.core.util.Base64;
 import com.sun.net.httpserver.HttpServer;
 
 import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
@@ -17,7 +24,7 @@ import java.util.*;
  Contains records for users, polls, and poll responses
  Last Updated 11-28-16
  **/
-@Path("/dining")
+@Path("/Dining")
 public class DiningResource {
 
     /**
@@ -67,6 +74,18 @@ public class DiningResource {
     public String getUser(@PathParam("id") int id) {
         try {
             return new Gson().toJson(retrieveUser(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @GET
+    @Path("/user/{name}")
+    @Produces("application/json")
+    public String getName(@PathParam("name") String name) {
+        try {
+            return new Gson().toJson(retrieveName(name));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -304,18 +323,34 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns a JSON list of responses for a given pollID
+     *
+     * @return a JSON list of responses
+     */
+    @GET
+    @Path("/responses/{id}/stats")
+    @Produces("application/json")
+    public String getPollStats(@PathParam("id") int id){
+        try {
+            return new Gson().toJson(retrievePollStats(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private static final String DB_URI = "jdbc:postgresql://localhost:5432/Dining";
     private static final String DB_LOGIN_ID = "postgres";
     private static final String DB_PASSWORD = "password";
+	private static final String PORT = "8086";
 
     private List retrieveUsers() throws Exception {
         List users = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
+
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Person")) {
             while (rs.next()) {
-                //noinspection unchecked
                 users.add(new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)));
             }
         } catch (SQLException e) {
@@ -369,6 +404,29 @@ public class DiningResource {
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
             rs = statement.executeQuery("SELECT * FROM Person WHERE ID=" + id);
+            if (rs.next()) {
+                user = new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
+            }
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            rs.close();
+            statement.close();
+            connection.close();
+        }
+        return user;
+    }
+
+    private User retrieveName(String name) throws Exception {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet rs = null;
+        User user = null;
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+            statement = connection.createStatement();
+            rs = statement.executeQuery("SELECT * FROM Person WHERE username='"+name+"'");
             if (rs.next()) {
                 user = new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
             }
@@ -446,9 +504,7 @@ public class DiningResource {
 
     private List retrievePolls() throws Exception {
         List polls = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll")) {
             while (rs.next()) {
                 //noinspection unchecked
@@ -505,9 +561,7 @@ public class DiningResource {
 
     private List retrieveCommonsPolls() throws Exception {
         List polls = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ")) {
             while (rs.next()) {
                 //noinspection unchecked
@@ -521,9 +575,7 @@ public class DiningResource {
 
     private List retrieveNewCommonsPolls() throws Exception {
         List polls = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ORDER BY pollID DESC LIMIT 1 ")) {
             while (rs.next()) {
                 //noinspection unchecked
@@ -537,12 +589,9 @@ public class DiningResource {
 
     private List retrieveKnollcrestPolls() throws Exception {
         List polls = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ")) {
             while (rs.next()) {
-                //noinspection unchecked
                 polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
             }
         } catch (SQLException e) {
@@ -553,9 +602,7 @@ public class DiningResource {
 
     private List retrieveNewKnollcrestPolls() throws Exception {
         List polls = new ArrayList<>();
-        //noinspection CaughtExceptionImmediatelyRethrown
         Class.forName("org.postgresql.Driver");
-        //noinspection CaughtExceptionImmediatelyRethrown
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ORDER BY pollID DESC LIMIT 1  ")) {
             while (rs.next()) {
                 //noinspection unchecked
@@ -572,7 +619,6 @@ public class DiningResource {
         Class.forName("org.postgresql.Driver");
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Response")) {
             while (rs.next()) {
-                //noinspection unchecked
                 responses.add(new Response(rs.getInt(1), rs.getInt(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5), rs.getBoolean(6)));
             }
         } catch (SQLException e) {
@@ -605,13 +651,52 @@ public class DiningResource {
         Class.forName("org.postgresql.Driver");
         try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Response WHERE pollID =" + id)) {
             while (rs.next()) {
-                //noinspection unchecked
                 responses.add(new Response(rs.getInt(1), rs.getInt(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5), rs.getBoolean(6)));
             }
         } catch (SQLException e) {
             throw (e);
         }
         return responses;
+    }
+
+    private List retrievePollStats(int id) throws Exception {
+        List stats = new ArrayList<>();
+        Class.forName("org.postgresql.Driver");
+        int total = 0;
+        float option1 = 0;
+        float option2 = 0;
+        float option3 = 0;
+        float option4 = 0;
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Response WHERE pollID =" + id)) {
+            while (rs.next()) {
+                Response current = new Response(rs.getInt(1), rs.getInt(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5), rs.getBoolean(6));
+                total += 1;
+                if (current.getAnswer1()){
+                    option1 += 1;
+                }
+                if (current.getAnswer2()){
+                    option2 += 1;
+                }
+                if (current.getAnswer3()){
+                    option3 += 1;
+                }
+                if (current.getAnswer4()){
+                    option4 += 1;
+                }
+            }
+        } catch (SQLException e) {
+            throw (e);
+        }
+        option1 = (option1/total) * 100;
+        option2 = (option2/total) * 100;
+        option3 = (option3/total) * 100;
+        option4 = (option4/total) * 100;
+        stats.add(option1);
+        stats.add(option2);
+        stats.add(option3);
+        stats.add(option4);
+
+        return stats;
     }
 
 
@@ -621,12 +706,12 @@ public class DiningResource {
      * @param args command-line arguments (ignored)
      */
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServerFactory.create("http://localhost:9998/");
+        HttpServer server = HttpServerFactory.create("http://localhost:" + PORT + "/");
         server.start();
 
         System.out.println("Server running...");
-        System.out.println("Web clients should visit: http://localhost:9998/monopoly");
-        System.out.println("Android emulators should visit: http://LOCAL_IP_ADDRESS:9998/monopoly");
+        System.out.println("Web clients should visit: http://localhost:8086/dining");
+        System.out.println("Android emulators should visit: http://LOCAL_IP_ADDRESS:8086/dining");
         System.out.println("Hit return to stop...");
         //noinspection ResultOfMethodCallIgnored
         System.in.read();
