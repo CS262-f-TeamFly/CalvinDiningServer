@@ -13,6 +13,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
@@ -80,6 +82,11 @@ public class DiningResource {
         return null;
     }
 
+    /**
+     * GET method that returns user with given username
+     *
+     * @return a JSON of the user
+     */
     @GET
     @Path("/user/{name}")
     @Produces("application/json")
@@ -171,9 +178,23 @@ public class DiningResource {
      */
     @POST
     @Path("/polls")
-    @Consumes("application/json")
+    @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public String postPoll(String pollLine){
+        System.out.println(pollLine);           //This is a stupid hack to convert html form response to json
+        CharSequence s1 = "=";                  //While it is stupid it also works so I'm keeping it this way
+        CharSequence s2 = "\":\"";              //It can easily be broken but I don't think a dining hall worker would ever put an = + or & in these polls
+        pollLine = pollLine.replace(s1, s2);
+        CharSequence s3 = "&";
+        CharSequence s4 = "\",\"";
+        pollLine = pollLine.replace(s3, s4);
+        pollLine = "{\"" + pollLine + "\"}";
+        CharSequence s5 = "\"0\"";
+        CharSequence s6 = "0";
+        pollLine = pollLine.replace(s5,s6);
+        pollLine = pollLine.replace("+", " ");
+        pollLine = pollLine.replace("%3F", "?");
+        System.out.println(pollLine);
         try {
             Poll poll = new Gson().fromJson(pollLine, Poll.class);
             return new Gson().toJson(addPoll(poll));
@@ -184,7 +205,7 @@ public class DiningResource {
     }
 
     /**
-     * DELETE method that delets the poll with the given id
+     * DELETE method that deletes the poll with the given id
      *
      * @return a JSON of the deleted poll
      */
@@ -338,6 +359,40 @@ public class DiningResource {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * GET method that returns a HTML form to submit a new poll
+     *
+     * @return a HTML Form
+     * This is a stupid hack but it works
+     */
+    @GET
+    @Path("/pollForm")
+    @Produces({MediaType.TEXT_HTML})
+    public String viewHome()
+    {
+        return "<html> <form action=\"http://localhost:8086/Dining/polls\" method=\"POST\">\n" +
+                " <input type=\"hidden\" name=\"id\" value=0>\n" +
+                "  Dining Hall:<br>\n" +
+                " <input type=\"radio\" name=\"diningHall\" value=\"Commons\" checked> Commons<br>\n" +
+                " <input type=\"radio\" name=\"diningHall\" value=\"Knollcrest\"> Knollcrest<br>\n" +
+                " Question Type:<br>\n" +
+                " <input type=\"radio\" name=\"questionType\" value=\"multipleChoice\" checked> Multiple choice<br>\n" +
+                " <input type=\"radio\" name=\"questionType\" value=\"trueFalse\"> yes no<br>\n" +
+                " Question:<br>\n" +
+                " <input type=\"text\" name=\"question\" value=\"\"><br>\n" +
+                " Option1:<br>\n" +
+                " <input type=\"text\" name=\"option1\" value=\"\"><br>\n" +
+                "  Option2:<br>\n" +
+                " <input type=\"text\" name=\"option2\" value=\"\"><br>\n" +
+                "  Option3:<br>\n" +
+                " <input type=\"text\" name=\"option3\" value=\"\"><br>\n" +
+                "  Option4:<br>\n" +
+                " <input type=\"text\" name=\"option4\" value=\"\"><br>\n" +
+                " Note leave option 3 and 4 blank if using a yes no question\n" +
+                " <input type=\"submit\" value=\"Submit\">\n" +
+                "</form> </html>";
     }
 
     private static final String DB_URI = "jdbc:postgresql://localhost:5432/Dining";
@@ -531,7 +586,7 @@ public class DiningResource {
                 throw new RuntimeException("failed to find unique id...");
             }
             statement.executeUpdate("INSERT INTO Poll VALUES (" + poll.getId() + ", '" + poll.getDiningHall() + "', '" + poll.getQuestionType() + "', " +
-                    "'" + poll.getQuestion() + "', '" + poll.getOption1() + "', '" + poll.getOption2() + "', '" + poll.getOption3() + "'," + poll.getOption4() + ")");
+                    "'" + poll.getQuestion() + "', '" + poll.getOption1() + "', '" + poll.getOption2() + "', '" + poll.getOption3() + "','" + poll.getOption4() + "')");
         } catch(SQLException e){
             throw (e);
         } finally{
@@ -708,7 +763,8 @@ public class DiningResource {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServerFactory.create("http://localhost:" + PORT + "/");
         server.start();
-
+        File here = new File(".");
+        System.out.println(here.getAbsolutePath());
         System.out.println("Server running...");
         System.out.println("Web clients should visit: http://localhost:8086/dining");
         System.out.println("Android emulators should visit: http://LOCAL_IP_ADDRESS:8086/dining");
