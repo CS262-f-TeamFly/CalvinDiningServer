@@ -686,12 +686,21 @@ public class DiningResource {
         Connection connection = null;
         Statement statement = null;
         ResultSet rs = null;
+        boolean addPerson = true;
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            statement.executeUpdate("INSERT INTO Response VALUES (" + response.getPollID() + ", '" + response.getPersonID() + "', '" + response.getAnswer1() + "', " +
-                    "'" + response.getAnswer2() + "', '" + response.getAnswer3() + "', " + response.getAnswer4() + ")");
+            rs = statement.executeQuery("SELECT personID FROM Response WHERE pollID =" + response.getPollID());
+            while (rs.next()) {
+                if (rs.getInt(1) == response.getPersonID()) {
+                    addPerson = false;
+                }
+            }
+            if (addPerson) {
+                statement.executeUpdate("INSERT INTO Response VALUES (" + response.getPollID() + ", '" + response.getPersonID() + "', '" + response.getAnswer1() + "', " +
+                        "'" + response.getAnswer2() + "', '" + response.getAnswer3() + "', " + response.getAnswer4() + ")");
+            }
         } catch(SQLException e){
             throw (e);
         } finally{
