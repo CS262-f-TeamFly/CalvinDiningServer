@@ -1,10 +1,10 @@
 package edu.calvin.cs262;
 
 /**
- * A User class (POJO) for the player relation
+ * A User class (POJO) for users of calvin dining app
  *
- * @author kvlinden
- * @version summer, 2016
+ * @author Kyle Harkema
+ * 11/27/2016.
  */
 class User {
 

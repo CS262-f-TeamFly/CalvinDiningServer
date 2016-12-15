@@ -20,11 +20,12 @@ import java.sql.*;
 import java.util.*;
 
 /**
- Server created By Kyle Harkema 
- For TeamFly Dining hall project for cs262 at Calvin College
+ @author Kyle Harkema
+ Server for TeamFly Dining hall project for cs262 at Calvin College
  Used to get access and modify data in dining hall database
  Contains records for users, polls, and poll responses
- Last Updated 11-28-16
+ Created 11-28-16
+ Last Updated 12-14-16
  **/
 @Path("/Dining")
 public class DiningResource {
@@ -400,11 +401,17 @@ public class DiningResource {
     private static final String DB_PASSWORD = "password";
 	private static final String PORT = "8086";
 
+    /**
+     * Method that retrieves a list of users from the sql database
+     *
+     * @return users a list of users.
+     */
     private List retrieveUsers() throws Exception {
         List users = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
 
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Person")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Person")) {
             while (rs.next()) {
                 users.add(new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)));
             }
@@ -414,6 +421,12 @@ public class DiningResource {
         return users;
     }
 
+    /**
+     * Method that adds a user to the sql database
+     *
+     * @param user a User
+     * @return user
+     */
     private User addUser (User user) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -425,7 +438,7 @@ public class DiningResource {
             statement = connection.createStatement();
             rs = statement.executeQuery("SELECT username FROM Person");
             while (rs.next()) {
-                if (user.getUserName().equals(rs.getString(1))) {
+                if (user.getUserName().equals(rs.getString(1))) {       //check if username already exists in db
                     newUser = false;
                     break;
                 }
@@ -433,11 +446,12 @@ public class DiningResource {
             if (newUser == true) {
                 rs = statement.executeQuery("SELECT MAX(ID) FROM Person");
                 if (rs.next()) {
-                    user.setId(rs.getInt(1) + 1);
+                    user.setId(rs.getInt(1) + 1);                       //give user a unique id
                 } else {
                     throw new RuntimeException("failed to find unique id...");
                 }
-                statement.executeUpdate("INSERT INTO Person VALUES (" + user.getId() + ", '" + user.getUserName() + "', '" + user.getPassword() + "', " + user.getMealCount() + ")");
+                statement.executeUpdate("INSERT INTO Person VALUES (" + user.getId() + ", '" + user.getUserName()
+                        + "', '" + user.getPassword() + "', " + user.getMealCount() + ")");
             }
             } catch(SQLException e){
                 throw (e);
@@ -449,6 +463,12 @@ public class DiningResource {
             return user;
     }
 
+    /**
+     * Method that gets a user based of its userID
+     *
+     * @param id a User id
+     * @return user a User with the given id
+     */
     private User retrieveUser(int id) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -458,7 +478,7 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            rs = statement.executeQuery("SELECT * FROM Person WHERE ID=" + id);
+            rs = statement.executeQuery("SELECT * FROM Person WHERE ID=" + id);     //find users where id matches
             if (rs.next()) {
                 user = new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
             }
@@ -472,6 +492,12 @@ public class DiningResource {
         return user;
     }
 
+    /**
+     * Method that gets a user based of its userName
+     *
+     * @param name a string of the user name
+     * @return user, a User with the given username
+     */
     private User retrieveName(String name) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -481,7 +507,7 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            rs = statement.executeQuery("SELECT * FROM Person WHERE username='"+name+"'");
+            rs = statement.executeQuery("SELECT * FROM Person WHERE username='"+name+"'");  //find users where name matches
             if (rs.next()) {
                 user = new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
             }
@@ -495,6 +521,12 @@ public class DiningResource {
         return user;
     }
 
+    /**
+     * Method that deletes a given User
+     *
+     * @param user a User
+     * @return user, the deleted user
+     */
     public User deleteUser(User user) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -502,7 +534,7 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Person WHERE id=" + user.getId());
+            statement.executeUpdate("DELETE FROM Person WHERE id=" + user.getId());     //match given user id with id in database
         } catch (SQLException e) {
             throw (e);
         } finally {
@@ -512,6 +544,12 @@ public class DiningResource {
         return user;
     }
 
+    /**
+     * Method that gets a users meal
+     *
+     * @param id a User id
+     * @return meals an integer of that users meals
+     */
     private int retrieveMeals(int id) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -521,9 +559,9 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            rs = statement.executeQuery("SELECT meals FROM Person WHERE ID=" + id);
+            rs = statement.executeQuery("SELECT meals FROM Person WHERE ID=" + id);     //match given id with id in db
             if (rs.next()) {
-                meals =  rs.getInt(1);
+                meals =  rs.getInt(1);      //return number of meals
             }
         } catch (SQLException e) {
             throw (e);
@@ -535,6 +573,12 @@ public class DiningResource {
         return meals;
     }
 
+    /**
+     * Method that updates a users meal count
+     *
+     * @param id a user ID, meals the updated amount of meals
+     * @return meals the new amount of meals
+     */
     private int updateMeal (int id, int meals) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -557,13 +601,20 @@ public class DiningResource {
         return meals;
     }
 
+    /**
+     * Method that gets a list of polls
+     *
+     * @return polls a list of polls
+     */
     private List retrievePolls() throws Exception {
         List polls = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll")) {
             while (rs.next()) {
                 //noinspection unchecked
-                polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
+                polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+                        rs.getString(6), rs.getString(7), rs.getString(8)));
             }
         } catch (SQLException e) {
             throw (e);
@@ -571,6 +622,12 @@ public class DiningResource {
         return polls;
     }
 
+    /**
+     * Method that adds a poll to the sql database
+     *
+     * @param  poll a Poll object
+     * @return poll, the Poll added to the database
+     */
     private Poll addPoll(Poll poll) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -581,12 +638,13 @@ public class DiningResource {
             statement = connection.createStatement();
             rs = statement.executeQuery("SELECT MAX(pollID) FROM Poll");
             if (rs.next()) {
-                poll.setId(rs.getInt(1) + 1);
+                poll.setId(rs.getInt(1) + 1);                   //set unique id for the poll
             } else {
                 throw new RuntimeException("failed to find unique id...");
             }
-            statement.executeUpdate("INSERT INTO Poll VALUES (" + poll.getId() + ", '" + poll.getDiningHall() + "', '" + poll.getQuestionType() + "', " +
-                    "'" + poll.getQuestion() + "', '" + poll.getOption1() + "', '" + poll.getOption2() + "', '" + poll.getOption3() + "','" + poll.getOption4() + "')");
+            statement.executeUpdate("INSERT INTO Poll VALUES (" + poll.getId() + ", '" + poll.getDiningHall() + "', '"
+                    + poll.getQuestionType() + "', " + "'" + poll.getQuestion() + "', '" + poll.getOption1() + "', '"
+                    + poll.getOption2() + "', '" + poll.getOption3() + "','" + poll.getOption4() + "')");
         } catch(SQLException e){
             throw (e);
         } finally{
@@ -597,6 +655,12 @@ public class DiningResource {
         return poll;
     }
 
+    /**
+     * Method that deletes a poll from the sql database
+     *
+     * @param  poll a Poll object
+     * @return poll, the Poll deleted from the database
+     */
     public Poll deletePoll(Poll poll) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -604,7 +668,7 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Poll WHERE pollID=" + poll.getId());
+            statement.executeUpdate("DELETE FROM Poll WHERE pollID=" + poll.getId());  //find matching ID's and delete
         } catch (SQLException e) {
             throw (e);
         } finally {
@@ -614,10 +678,17 @@ public class DiningResource {
         return poll;
     }
 
+    /**
+     * Method that gets a list of polls that are from commons
+     *
+     * @return polls a list of polls
+     */
     private List retrieveCommonsPolls() throws Exception {
         List polls = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ")) {
             while (rs.next()) {
                 //noinspection unchecked
                 polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
@@ -628,10 +699,17 @@ public class DiningResource {
         return polls;
     }
 
+    /**
+     * Method that gets the newest poll from commons
+     *
+     * @return polls a Poll object
+     */
     private List retrieveNewCommonsPolls() throws Exception {
         List polls = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ORDER BY pollID DESC LIMIT 1 ")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Commons' ORDER BY pollID DESC LIMIT 1 ")) {  //finds highest poll id from commons
             while (rs.next()) {
                 //noinspection unchecked
                 polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
@@ -642,10 +720,17 @@ public class DiningResource {
         return polls;
     }
 
+    /**
+     * Method that gets a list of polls that are from Knollcrest
+     *
+     * @return polls a list of polls
+     */
     private List retrieveKnollcrestPolls() throws Exception {
         List polls = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ")) {
             while (rs.next()) {
                 polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
             }
@@ -655,10 +740,17 @@ public class DiningResource {
         return polls;
     }
 
+    /**
+     * Method that gets the newest poll from Knollcrest
+     *
+     * @return polls a Poll object
+     */
     private List retrieveNewKnollcrestPolls() throws Exception {
         List polls = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ORDER BY pollID DESC LIMIT 1  ")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery("SELECT * FROM Poll WHERE diningHall = 'Knollcrest' ORDER BY pollID DESC LIMIT 1  ")) {
             while (rs.next()) {
                 //noinspection unchecked
                 polls.add(new Poll(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)));
@@ -669,10 +761,16 @@ public class DiningResource {
         return polls;
     }
 
+    /**
+     * Method that gets a list of responses from sql database
+     *
+     * @return responses, a list of Responses
+     */
     private List retrieveResponses() throws Exception {
         List responses = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
-        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Response")) {
+        try (Connection connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
+             Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery("SELECT * FROM Response")) {
             while (rs.next()) {
                 responses.add(new Response(rs.getInt(1), rs.getInt(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5), rs.getBoolean(6)));
             }
@@ -682,6 +780,12 @@ public class DiningResource {
         return responses;
     }
 
+    /**
+     * Method that adds a response to the sql database
+     *
+     * @param  response a Response object
+     * @return response, the Response added to the database
+     */
     private Response addResponse(Response response) throws Exception {
         Connection connection = null;
         Statement statement = null;
@@ -691,10 +795,13 @@ public class DiningResource {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(DB_URI, DB_LOGIN_ID, DB_PASSWORD);
             statement = connection.createStatement();
-            rs = statement.executeQuery("SELECT personID FROM Response WHERE pollID =" + response.getPollID());
+            if (response.getAnswer1() == false && response.getAnswer2() == false && response.getAnswer3() == false && response.getAnswer4() == false){  //make sure an option was selected
+                addPerson = false; //if an option was not selected don't let the response be added
+            }
+            rs = statement.executeQuery("SELECT personID FROM Response WHERE pollID =" + response.getPollID()); //get list of response for poll being responded to
             while (rs.next()) {
-                if (rs.getInt(1) == response.getPersonID()) {
-                    addPerson = false;
+                if (rs.getInt(1) == response.getPersonID()) {   //check if user has already made a response for this poll
+                    addPerson = false;      //if user has don't let response be added
                 }
             }
             if (addPerson) {
@@ -710,6 +817,12 @@ public class DiningResource {
         return response;
     }
 
+    /**
+     * Method that gets responses for a given poll
+     *
+     * @param  id a Poll id
+     * @return responses a list of Responses with the given poll ID
+     */
     private List retrievePollResponses(int id) throws Exception {
         List responses = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
@@ -723,6 +836,12 @@ public class DiningResource {
         return responses;
     }
 
+    /**
+     * Method that gets percentages of responses for a given poll
+     *
+     * @param  id a Poll id
+     * @return stats a list containing the percentages of how many each option was selected
+     */
     private List retrievePollStats(int id) throws Exception {
         List stats = new ArrayList<>();
         Class.forName("org.postgresql.Driver");
@@ -735,7 +854,7 @@ public class DiningResource {
             while (rs.next()) {
                 Response current = new Response(rs.getInt(1), rs.getInt(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5), rs.getBoolean(6));
                 total += 1;
-                if (current.getAnswer1()){
+                if (current.getAnswer1()){      //if option was selected add one to that option
                     option1 += 1;
                 }
                 if (current.getAnswer2()){
@@ -751,7 +870,7 @@ public class DiningResource {
         } catch (SQLException e) {
             throw (e);
         }
-        option1 = (option1/total) * 100;
+        option1 = (option1/total) * 100;    //get percentage of total votes for each option
         option2 = (option2/total) * 100;
         option3 = (option3/total) * 100;
         option4 = (option4/total) * 100;

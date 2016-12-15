@@ -1,7 +1,10 @@
 package edu.calvin.cs262;
 
 /**
- * Created by Kyle on 11/27/2016.
+ * A Response class (POJO) for user responses to polls
+ *
+ * @author Kyle Harkema
+ * 11/27/2016.
  */
 public class Response {
 

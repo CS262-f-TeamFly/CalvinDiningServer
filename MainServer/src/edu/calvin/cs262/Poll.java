@@ -1,7 +1,10 @@
 package edu.calvin.cs262;
 
 /**
- * Created by Kyle on 11/25/2016.
+ * A Poll class (POJO) for dining hall polls
+ *
+ * @author Kyle Harkema
+ * 11/25/2016.
  */
 public class Poll {
 
